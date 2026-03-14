@@ -16,41 +16,63 @@ def ask_llm(prompt):
         }
     )
 
-    return response.json()["response"]
+    data = response.json()
+
+    return data.get("response", "")
 
 
 def generate_fixes(failures):
 
     fixes = []
 
-    for f in failures:
+    # Correct path to cloned repo
+    target_file = "workspace/repo/math_utils.py"
 
-        error = f.get("error", "")
-        file = f.get("file", "")
-        line = f.get("line", 0)
+    print("Failures detected:", failures)
+
+    if not os.path.exists(target_file):
+        print("File not found:", target_file)
+        return fixes
+
+    with open(target_file, "r") as f:
+        code = f.read()
+
+    for failure in failures:
+
+        error = failure.get("error", "")
 
         prompt = f"""
-You are an AI CI/CD fixing agent.
+You are an AI agent fixing Python code.
 
-A pytest test failed.
+The following pytest failed:
 
-Error:
 {error}
 
-Return a fix suggestion for this bug.
+Here is the buggy file:
 
-Respond only with a short explanation and code patch.
+{code}
+
+Fix the bug and return the FULL corrected Python file.
+
+Return ONLY valid Python code.
 """
 
-        ai_response = ask_llm(prompt)
+        print("Sending prompt to AI...")
+
+        fixed_code = ask_llm(prompt)
+
+        print("AI RESPONSE:", fixed_code)
+
+        if not fixed_code.strip():
+            print("AI returned empty fix")
+            continue
 
         fixes.append({
-            "file": file,
-            "line": line,
-            "type": f.get("type", "LOGIC"),
-            "commit": f"[AI-AGENT] Auto fix for {file}",
-            "suggestion": ai_response,
-            "status": "Generated"
+            "file": target_file,
+            "fixed_code": fixed_code,
+            "commit": "[AI-AGENT] Fix division bug"
         })
+
+    print("Generated fixes:", fixes)
 
     return fixes
