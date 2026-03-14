@@ -21,12 +21,12 @@ def push_fixes(repo_path, repo_url, fixes, team, leader):
     # Apply fixes (demo fix for now)
     for fix in fixes:
 
-        file_path = fix["file"]
+        file_path = os.path.basename(fix["file"])
 
         if os.path.exists(file_path):
 
-            with open(file_path, "a") as f:
-                f.write("\n# AI FIX APPLIED\n")
+            with open(file_path, "w") as f:
+                f.write(fix["fixed_code"])
 
             os.system(f"git add {file_path}")
             os.system(f'git commit -m "{fix["commit"]}"')
