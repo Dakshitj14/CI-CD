@@ -61,6 +61,11 @@ Return ONLY valid Python code.
 
         fixed_code = ask_llm(prompt)
 
+        # Clean markdown and explanations
+        fixed_code = fixed_code.replace("```python", "")
+        fixed_code = fixed_code.replace("```", "")
+        fixed_code = fixed_code.strip()
+
         print("AI RESPONSE:", fixed_code)
 
         if not fixed_code.strip():
