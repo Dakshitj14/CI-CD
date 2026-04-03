@@ -1,9 +1,8 @@
+import secrets
 import time
 
-def generate_branch(team, leader):
 
+def generate_branch():
     timestamp = int(time.time())
-
-    branch = f"{team}_{leader}_AI_FIX_{timestamp}"
-
-    return branch.upper().replace(" ", "_")
+    suffix = secrets.token_hex(3)
+    return f"ai-fix-{timestamp}-{suffix}".lower()
